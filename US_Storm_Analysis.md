@@ -161,7 +161,7 @@ Let's look at the graphical representation of the results.
           strip.text.x = element_text(angle = 90, size=8, hjust = .5, vjust = .5)) +
           ggtitle("Number of people injured and killed by weather events")
 
-![](US_Storm_Analysis_files/figure-markdown_strict/unnamed-chunk-9-1.png)<!-- -->
+![](US_Storm_Analysis_files/figure-markdown_strict/unnamed-chunk-9-1.png)
 
 Injuries from tornados are overwhelmingly high. Let's calculate the
 ratio of number of people injured during tornados to the number of
@@ -185,8 +185,7 @@ Now to the economic losses.
           strip.text.x = element_text(angle = 90, size=8, hjust = .5, vjust = .5)) +
           ggtitle("Economic losses by weather events") + ylab("Economic Losses in millions")
 
-![](US_Storm_Analysis_files/figure-markdown_strict/unnamed-chunk-11-1.png)<!-- -->
-
+![](US_Storm_Analysis_files/figure-markdown_strict/unnamed-chunk-11-1.png)
     EHarmSubData[,"PROPDMG"] > EHarmSubData[,"CROPDMG"]
 
     ## [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE
