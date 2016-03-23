@@ -1,6 +1,4 @@
----
-output: md_document
----
+
 ## Analysis of economic and public health consequences of severe weather events in US
 
 Final project for Reproducible Research course on Coursera (5th course of the data analysis specialization).
@@ -37,7 +35,7 @@ subData <- storm[,c("EVTYPE", "FATALITIES", "INJURIES", "PROPDMG", "CROPDMG")]
 ```
 
 Also delete rows with "?" and summaries in the event name column "EVTYPE".
-```{r, cache = TRUE}
+```{r}
 # Delete the row with "?" in the EVTYPE column
 subData <- subData[!(subData$EVTYPE == "?"),]
 # Remove summaries
@@ -47,41 +45,40 @@ subData <- subData[!(grepl('Summary', subData$EVTYPE, ignore.case = TRUE)),]
 Now let's unite 985 unique values of events into meaningfull groups.
 ```{r, cache = TRUE}
 subData$EVTYPE <- as.character(subData$EVTYPE)
-subData[grepl("cold|cool|ice|icy|frost|freeze|snow|winter|wintry|wintery|blizzard|
-              chill|freezing|glaze|sleet", 
-              subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- "Cold Weather"
 
-subData[grepl("warmth|DRIEST MONTH|warm|heat|dry|hot|drought|thermia|temperature record|
-            record temperature|record high|temperature", 
-            subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- "Heat and Temperature"
+oldToNewNames = list()
 
-subData[grepl("wind|storm|wnd|waterspouts|waterspouts/", 
-              subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- "Wind"
+oldToNewNames[paste("cold|cool|ice|icy|frost|freeze|snow|winter|wintry|wintery|blizzard|chill|freezing|",
+              "glaze|sleet", sep = "")] <- "Cold Weather"
 
-subData[grepl("precipitation|MIXED PRECIP|rain|hail|drizzle|LIGNTNING|HEAVY SHOWER |
-            LIGHTNING|LIGHTING|TSTM|HEAVY SHOWER[S]|HEAVY PRECIPATATION|
-            wet|percip|burst|[fv]og|wall cloud", 
-            subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- "Precipitation and Thunderstorm"
+oldToNewNames[paste("warmth|DRIEST MONTH|warm|heat|dry|hot|drought|thermia|temperature record|",
+              "record temperature|record high|temperature", sep = "")] <- "Heat and Temperature"
 
-subData[grepl("hurricane|typhoon|tornado|TORNDAO|funnel|whirlwind", 
-              subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- "Tornado"
+oldToNewNames["wind|storm|wnd|waterspouts|waterspouts/"] <- "Wind"
 
-subData[grepl("dust|GUSTNADO|saharan|landspout", subData$EVTYPE,
-              ignore.case = TRUE), "EVTYPE"] <- "Dust"
+oldToNewNames[paste("precipitation|MIXED PRECIP|rain|hail|drizzle|LIGNTNING|HEAVY SHOWER|LIGHTNING|TSTM",
+              "LIGHTING|HEAVY SHOWER[S]|HEAVY PRECIPATATION|wet|percip|burst|[fv]og|wall cloud", sep="")
+             ] <-"Precipitation and Thunderstorm"
 
-subData[grepl("seas|high water|fld|fldg|dam|water|SURGE|SEICHE|SWELLS|tide|tsunami|wave|
-      current|surf|marine|drowning|flood|DAM FAILURE|WATERSPOUT|WATER SPOUT|WAYTERSPOUT", 
-              subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- "High Water"
+oldToNewNames["hurricane|typhoon|tornado|TORNDAO|funnel|whirlwind"] <- "Tornado"
 
-subData[grepl("ash|smoke|volcanic|fire", 
-              subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- "Fire and Volcanic Activity"
+oldToNewNames["dust|GUSTNADO|saharan|landspout"] <- "Dust"
 
-subData[grepl("slide|erosion|EROSIN|landslump", 
-              subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- "Ground Movements"
+oldToNewNames[paste("seas|high water|fld|fldg|dam|water|SURGE|SEICHE|SWELLS|tide|tsunami|wave|current|",
+              "surf|marine|drowning|flood|DAM FAILURE|WATERSPOUT|WATER SPOUT|WAYTERSPOUT", sep="")
+             ] <- "High Water"
 
-subData[!grepl(paste("Heat and Temperature|Wind|Tornado|Dust|Precipitation and Thunderstorm|Cold .Weather",
+oldToNewNames["ash|smoke|volcanic|fire"] <- "Fire and Volcanic Activity"
+
+oldToNewNames["slide|erosion|EROSIN|landslump"] <- "Ground Movements"
+
+for (oldName in names(oldToNewNames)) {
+      subData[grepl(oldName, subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- oldToNewNames[[oldName]]
+}
+
+subData[!grepl(paste("Heat and Temperature|Wind|Tornado|Dust|Precipitation and Thunderstorm|Cold Weather",
                      "|High Water|Ground Movements|Fire and Volcanic Activity", sep = ""), 
-            subData$EVTYPE), "EVTYPE"] <- "Other"
+               subData$EVTYPE), "EVTYPE"] <- "Other"
 ```
 
 ### Data Analysis

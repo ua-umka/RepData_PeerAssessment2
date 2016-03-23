@@ -55,41 +55,40 @@ Also delete rows with "?" and summaries in the event name column
 Now let's unite 985 unique values of events into meaningfull groups.
 
     subData$EVTYPE <- as.character(subData$EVTYPE)
-    subData[grepl("cold|cool|ice|icy|frost|freeze|snow|winter|wintry|wintery|blizzard|
-                  chill|freezing|glaze|sleet", 
-                  subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- "Cold Weather"
 
-    subData[grepl("warmth|DRIEST MONTH|warm|heat|dry|hot|drought|thermia|temperature record|
-                record temperature|record high|temperature", 
-                subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- "Heat and Temperature"
+    oldToNewNames = list()
 
-    subData[grepl("wind|storm|wnd|waterspouts|waterspouts/", 
-                  subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- "Wind"
+    oldToNewNames[paste("cold|cool|ice|icy|frost|freeze|snow|winter|wintry|wintery|blizzard|chill|freezing|",
+                  "glaze|sleet", sep = "")] <- "Cold Weather"
 
-    subData[grepl("precipitation|MIXED PRECIP|rain|hail|drizzle|LIGNTNING|HEAVY SHOWER |
-                LIGHTNING|LIGHTING|TSTM|HEAVY SHOWER[S]|HEAVY PRECIPATATION|
-                wet|percip|burst|[fv]og|wall cloud", 
-                subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- "Precipitation and Thunderstorm"
+    oldToNewNames[paste("warmth|DRIEST MONTH|warm|heat|dry|hot|drought|thermia|temperature record|",
+                  "record temperature|record high|temperature", sep = "")] <- "Heat and Temperature"
 
-    subData[grepl("hurricane|typhoon|tornado|TORNDAO|funnel|whirlwind", 
-                  subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- "Tornado"
+    oldToNewNames["wind|storm|wnd|waterspouts|waterspouts/"] <- "Wind"
 
-    subData[grepl("dust|GUSTNADO|saharan|landspout", subData$EVTYPE,
-                  ignore.case = TRUE), "EVTYPE"] <- "Dust"
+    oldToNewNames[paste("precipitation|MIXED PRECIP|rain|hail|drizzle|LIGNTNING|HEAVY SHOWER|LIGHTNING|TSTM",
+                  "LIGHTING|HEAVY SHOWER[S]|HEAVY PRECIPATATION|wet|percip|burst|[fv]og|wall cloud", sep="")
+                 ] <-"Precipitation and Thunderstorm"
 
-    subData[grepl("seas|high water|fld|fldg|dam|water|SURGE|SEICHE|SWELLS|tide|tsunami|wave|
-          current|surf|marine|drowning|flood|DAM FAILURE|WATERSPOUT|WATER SPOUT|WAYTERSPOUT", 
-                  subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- "High Water"
+    oldToNewNames["hurricane|typhoon|tornado|TORNDAO|funnel|whirlwind"] <- "Tornado"
 
-    subData[grepl("ash|smoke|volcanic|fire", 
-                  subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- "Fire and Volcanic Activity"
+    oldToNewNames["dust|GUSTNADO|saharan|landspout"] <- "Dust"
 
-    subData[grepl("slide|erosion|EROSIN|landslump", 
-                  subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- "Ground Movements"
+    oldToNewNames[paste("seas|high water|fld|fldg|dam|water|SURGE|SEICHE|SWELLS|tide|tsunami|wave|current|",
+                  "surf|marine|drowning|flood|DAM FAILURE|WATERSPOUT|WATER SPOUT|WAYTERSPOUT", sep="")
+                 ] <- "High Water"
 
-    subData[!grepl(paste("Heat and Temperature|Wind|Tornado|Dust|Precipitation and Thunderstorm|Cold .Weather",
+    oldToNewNames["ash|smoke|volcanic|fire"] <- "Fire and Volcanic Activity"
+
+    oldToNewNames["slide|erosion|EROSIN|landslump"] <- "Ground Movements"
+
+    for (oldName in names(oldToNewNames)) {
+          subData[grepl(oldName, subData$EVTYPE, ignore.case = TRUE), "EVTYPE"] <- oldToNewNames[[oldName]]
+    }
+
+    subData[!grepl(paste("Heat and Temperature|Wind|Tornado|Dust|Precipitation and Thunderstorm|Cold Weather",
                          "|High Water|Ground Movements|Fire and Volcanic Activity", sep = ""), 
-                subData$EVTYPE), "EVTYPE"] <- "Other"
+                   subData$EVTYPE), "EVTYPE"] <- "Other"
 
 ### Data Analysis
 
@@ -121,29 +120,31 @@ Lets look at at the resulting data.
 
     HHarmSubData
 
-    ##                           EVTYPE INJURIES FATALITIES
-    ## 8                        Tornado    92743       5769
-    ## 6                          Other    12636       2722
-    ## 9                           Wind    12307       1341
-    ## 4           Heat and Temperature     9276       3197
-    ## 5                     High Water     9107       1782
-    ## 7 Precipitation and Thunderstorm     2753        198
-    ## 2     Fire and Volcanic Activity     1608         90
-    ## 3               Ground Movements       55         44
-    ## 1                           Dust       43          2
+    ##                            EVTYPE INJURIES FATALITIES
+    ## 9                         Tornado    92743       5769
+    ## 10                           Wind    12302       1324
+    ## 6                      High Water     9636       2354
+    ## 5            Heat and Temperature     9276       3197
+    ## 8  Precipitation and Thunderstorm     7984       1015
+    ## 1                    Cold Weather     6706       1125
+    ## 3      Fire and Volcanic Activity     1608         90
+    ## 7                           Other      175        225
+    ## 4                Ground Movements       55         44
+    ## 2                            Dust       43          2
 
     EHarmSubData
 
-    ##                           EVTYPE    PROPDMG   CROPDMG
-    ## 8                        Tornado 3241129.51 111654.51
-    ## 9                           Wind 3212804.53 230254.66
-    ## 5                     High Water 2479733.16 366799.73
-    ## 6                          Other 1030856.01  29898.67
-    ## 7 Precipitation and Thunderstorm  762601.78 594218.66
-    ## 2     Fire and Volcanic Activity  125823.29   9565.74
-    ## 3               Ground Movements   21629.04     37.00
-    ## 4           Heat and Temperature    9069.51  35396.80
-    ## 1                           Dust     848.18      1.55
+    ##                            EVTYPE    PROPDMG   CROPDMG
+    ## 9                         Tornado 3241129.51 111654.51
+    ## 10                           Wind 3211999.53 230237.66
+    ## 6                      High Water 2479896.16 366799.73
+    ## 8  Precipitation and Thunderstorm 1365934.06 597941.27
+    ## 1                    Cold Weather  424927.68  25158.66
+    ## 3      Fire and Volcanic Activity  125818.29   9565.74
+    ## 4                Ground Movements   21629.04     37.00
+    ## 5            Heat and Temperature    9069.51  35396.80
+    ## 7                           Other    3243.05   1034.40
+    ## 2                            Dust     848.18      1.55
 
 Let's look at the graphical representation of the results.
 
@@ -169,7 +170,7 @@ people injured during all other weather events.
 
     HHarmSubData[1,2]/sum(HHarmSubData[2:7,2])
 
-    ## [1] 1.944828
+    ## [1] 1.951991
 
 As we can see, the number of people injured during tornados is twice as
 high as the number of people injured during all other weather conditions
@@ -189,7 +190,7 @@ Now to the economic losses.
 
     EHarmSubData[,"PROPDMG"] > EHarmSubData[,"CROPDMG"]
 
-    ## [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE
+    ##  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE
 
 Three most damaging groups of events in terms of economic losses are
 Tornado, Wind and High Water respectively. The most damaging events for
