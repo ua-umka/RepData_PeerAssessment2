@@ -1,4 +1,3 @@
-
 ## Analysis of economic and public health consequences of severe weather events in US
 
 Final project for Reproducible Research course on Coursera (5th course of the data analysis specialization).
